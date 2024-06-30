@@ -61,7 +61,10 @@ class PGA(nn.Module):
         wd_t = wd.clone().detach()
         for i in range(self.config.B):
             wd_t[i] = wd[i].clone().detach() + self.hyp[iter_num][i + 1] * self.grad_wd(h[i], wa[0], wd[i].clone().detach()) # gradient ascent
-            wd = self.wd_projection(wa,wd_t,h)
+            if self.config.proj_iter_rate == 1 or (iter_num % self.config.proj_iter_rate == 0 and iter_num>0):
+                wd = self.wd_projection(wa,wd_t,h)
+            else:
+                wd_t = wd
 
         # update the rate
         sum_rate[iter_num] = self.calc_sum_rate(h, wa, wd)

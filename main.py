@@ -12,7 +12,7 @@ if __name__ == "__main__":
     config = CONFIG('config.yaml')
     config.device = set_device()
 
-    # Create Datasets
+    # ---- Create Datasets ----
     H_train = torch.randn(config.B, config.train_size, config.N, config.M)
     H_val = torch.randn(config.B, config.valid_size, config.N, config.M)
     H_test = torch.randn(config.B, config.test_size, config.N, config.M)
@@ -22,6 +22,7 @@ if __name__ == "__main__":
     Timer.enabled = True
     sum_rate_class, wa, wd = classic_model.forward(H_test,config.num_of_iter_pga,plot=False)
     Timer.save_time_telemetery()
+
     # ---- Unfolded PGA ----
     Timer.enabled = False    
     unfolded_model = Unfolded_PGA(config)
