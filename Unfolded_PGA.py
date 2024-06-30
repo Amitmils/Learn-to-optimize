@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 from utils import Timer
-from PGA import ProjGA
+from PGA import PGA
 
 class Unfolded_PGA():
     def __init__(self,config) -> None:
         super().__init__()
         self.config = config
-        self.PGA = ProjGA(config,config.num_of_iter_pga_unf,enable_timing=False)
+        self.PGA = PGA(config,config.num_of_iter_pga_unf,pga_type='Unfolded')
         self.optimizer = torch.optim.Adam(self.PGA.parameters(), lr=self.config.lr)
         Timer.enabled = False
 
@@ -20,35 +20,31 @@ class Unfolded_PGA():
             H_shuffeld = torch.transpose(H_train, 0, 1)[np.random.permutation(len(H_train[1]))]
             for b in range(0, len(H_train), self.config.batch_size):
                 H = torch.transpose(H_shuffeld[b:b+self.config.batch_size], 0, 1)
-                __, wa, wd = self.PGA.forward(H,self.config.num_of_iter_pga_unf)
-                loss = self.sum_loss(wa, wd, H, self.config.batch_size)
+                sum_rate_in_batch_per_iter, wa, wd = self.PGA.forward(H,self.config.num_of_iter_pga_unf)
+                loss = self.calc_loss(sum_rate_in_batch_per_iter)
+                # loss = self.sum_loss(wa, wd, H, self.config.batch_size)
 
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
 
             # train loss
-            __, wa, wd = self.PGA.forward(H_train ,self.config.num_of_iter_pga_unf)
-            train_losses.append(self.sum_loss(wa, wd, H_train, self.config.train_size))
+            sum_rate_per_iter, wa, wd = self.PGA.forward(H_train ,self.config.num_of_iter_pga_unf)
+            train_losses.append(self.calc_loss(sum_rate_per_iter))
+            # train_losses.append(self.sum_loss(wa, wd, H_train, self.config.train_size))
 
             # validation loss
-            __, wa, wd = self.PGA.forward(H_val, self.config.num_of_iter_pga_unf)
-            val_losses.append(self.sum_loss(wa, wd, H_val, self.config.valid_size))
+            sum_rate_per_iter, wa, wd = self.PGA.forward(H_val, self.config.num_of_iter_pga_unf)
+            val_losses.append(self.calc_loss(sum_rate_per_iter))
+            # val_losses.append(self.sum_loss(wa, wd, H_val, self.config.valid_size))
+
         self.plot_learning_curve(train_losses,val_losses)
         return train_losses,val_losses
     
     def eval(self,H_test):
         self.PGA.eval()
-        sum_rate_unf, __, __ = self.PGA.forward(H_test, self.config.num_of_iter_pga_unf)
-        plt.figure()
-        y = [r.detach().numpy() for r in (sum(sum_rate_unf)/self.config.test_size)]
-        x = np.array(list(range(self.config.num_of_iter_pga_unf))) +1
-        plt.plot(x, y, 'o')
-        plt.title(f'The Average Achievable Sum-Rate of the Test Set \n in Each Iteration of the unfolded PGA')
-        plt.xlabel('Number of Iteration')
-        plt.ylabel('Achievable Rate')
-        plt.grid()
-        plt.show()
+        sum_rate_unf, __, __ = self.PGA.forward(H_test, self.config.num_of_iter_pga_unf,plot=True)
+        return sum_rate_unf
 
     def plot_learning_curve(self,train_losses,val_losses):
         y_t = [r.detach().numpy() for r in train_losses]
@@ -59,10 +55,16 @@ class Unfolded_PGA():
         plt.plot(x_t, y_t, 'o', label='Train')
         plt.plot(x_v, y_v, '*', label='Valid')
         plt.grid()
-        plt.title(f'Loss Curve, Num Epochs = {config.epochs}, Batch Size = {config.batch_size} \n Num of Iterations of PGA = {config.num_of_iter_pga_unf}')
+        plt.title(f'Loss Curve, Num Epochs = {self.config.epochs}, Batch Size = {self.config.batch_size} \n Num of Iterations of PGA = {self.config.num_of_iter_pga_unf}')
         plt.xlabel('Epoch')
         plt.legend(loc='best')
         plt.show()
+
+    def calc_loss(self,sum_rate_per_iter):
+        _,num_iter = sum_rate_per_iter.shape
+        weights =torch.log(torch.arange(2,2+num_iter))
+        loss = -torch.mean(sum_rate_per_iter * weights)
+        return loss
 
     def sum_loss(self,wa, wd, h, batch_size):
         a1 = torch.transpose(wa, 2, 3).conj() @ torch.transpose(h, 2, 3).conj()

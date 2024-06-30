@@ -3,6 +3,7 @@ import json
 import yaml
 import time
 import pandas as pd
+import torch
 
 class CONFIG():
     def __init__(self,config_path) -> None:
@@ -93,3 +94,14 @@ class Timer:
 
         df = pd.DataFrame(time_summary, columns=columns)
         df.to_csv("time_telemetry.csv", index=False)
+
+def set_device():
+    if torch.cuda.is_available(): #set defaults before importing scripts
+        device = torch.device('cuda')
+        print("Using GPU:", torch.cuda.get_device_name(torch.cuda.current_device()))
+        torch.set_default_dtype(torch.float32)  # Set default data type
+        torch.set_default_device('cuda')  # Set default device (optional)
+    else:
+        device = torch.device('cpu')
+        print("Using CPU")
+    return device

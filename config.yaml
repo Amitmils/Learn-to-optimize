@@ -13,6 +13,6 @@ num_of_iter_pga_unf : 5 # num unfolded pga iterations
 
 # training parameters
 lr : 0.4
-epochs : 20
+epochs : 30
 batch_size : 100  # batch size
 

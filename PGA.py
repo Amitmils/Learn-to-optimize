@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from utils import Timer
 
-class ProjGA(nn.Module):
-    def __init__(self,config,num_iter):
+class PGA(nn.Module):
+    def __init__(self,config,num_iter,pga_type='Classic'):
         super().__init__()
         self.config = config
         mu= torch.tensor([[50 * 1e-2] * (config.B+1)] *num_iter, requires_grad=True)
         self.hyp = nn.Parameter(mu)  # parameters = (mu_a, mu_(d,1), ..., mu_(d,B))
+        self.pga_type = pga_type
 
     @Timer.timeit
     def forward(self, h, num_of_iter,plot = False):
@@ -29,7 +30,7 @@ class ProjGA(nn.Module):
             y = [r.detach().numpy() for r in (sum(sum_rate)/h.shape[1])]
             x = np.array(list(range(num_of_iter))) +1
             plt.plot(x, y, 'o')
-            plt.title(f'The Average Achievable Sum-Rate of the Test Set \n in Each Iteration of the Classical PGA')
+            plt.title(f'The Average Achievable Sum-Rate of the Test Set \n in Each Iteration of the {self.pga_type} PGA')
             plt.xlabel('Number of Iteration')
             plt.ylabel('Achievable Rate')
             plt.grid()
@@ -104,3 +105,9 @@ class ProjGA(nn.Module):
         return sum(torch.log((torch.eye(self.config.N).reshape((1, 1, self.config.N, self.config.N)) +
                        h @ wa @ wd @ torch.transpose(wd, 2, 3).conj() @
                        torch.transpose(wa, 2, 3).conj() @ torch.transpose(h, 2, 3).conj()).det())) / self.config.B
+    
+def test():
+    tensor = torch.tensor([1.0, 2.0, 3.0])
+
+    print(tensor.dtype)  # Should print torch.float32
+    print(tensor.device)  # Should print cuda:0 if GPU is available
