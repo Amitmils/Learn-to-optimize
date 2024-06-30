@@ -20,7 +20,7 @@ class PGA(nn.Module):
         wa,wd = self.init_variables(h)
         sum_rate = torch.zeros(num_of_iter, len(h[0]))
         for k in range(num_of_iter):
-            wa, wd = self.perform_iter(h,wa,wd,sum_rate,k)
+            wa, wd = self.perform_iter(h,wa,wd,sum_rate,k,num_of_iter)
             Timer.new_iter = True
         sum_rate = torch.transpose(sum_rate, 0, 1)
 
@@ -29,7 +29,7 @@ class PGA(nn.Module):
             plt.figure()
             y = [r.detach().numpy() for r in (sum(sum_rate)/h.shape[1])]
             x = np.array(list(range(num_of_iter))) +1
-            plt.plot(x, y, 'o')
+            plt.scatter(x, y, s=7)
             plt.title(f'The Average Achievable Sum-Rate of the Test Set \n in Each Iteration of the {self.pga_type} PGA')
             plt.xlabel('Number of Iteration')
             plt.ylabel('Achievable Rate')
@@ -52,7 +52,7 @@ class PGA(nn.Module):
         return wa,wd
 
     @Timer.timeit
-    def perform_iter(self,h,wa,wd,sum_rate,iter_num):
+    def perform_iter(self,h,wa,wd,sum_rate,iter_num,total_num_iter):
         # ---------- Wa ---------------
         wa_t = wa + self.hyp[iter_num][0] * self.grad_wa(h, wa, wd) #gradient ascent
         wa = self.wa_projection(wa_t,wd,h)
@@ -61,10 +61,9 @@ class PGA(nn.Module):
         wd_t = wd.clone().detach()
         for i in range(self.config.B):
             wd_t[i] = wd[i].clone().detach() + self.hyp[iter_num][i + 1] * self.grad_wd(h[i], wa[0], wd[i].clone().detach()) # gradient ascent
-            if self.config.proj_iter_rate == 1 or (iter_num % self.config.proj_iter_rate == 0 and iter_num>0):
-                wd = self.wd_projection(wa,wd_t,h)
-            else:
-                wd_t = wd
+            perform_proj = self.config.proj_iter_rate == 1 or (iter_num % self.config.proj_iter_rate == 0 and iter_num>0) or iter_num == total_num_iter - 1#Perform Projection according to proj rate and always perform on last iter
+            wd = self.wd_projection(wa,wd_t,h,perform_proj) #if perform_proj == False return wd_t
+
 
         # update the rate
         sum_rate[iter_num] = self.calc_sum_rate(h, wa, wd)
@@ -97,10 +96,13 @@ class PGA(nn.Module):
                 h.conj() @ wa.conj() @ wd.conj()) / self.config.B
 
     @Timer.timeit
-    def wd_projection(self,wa,wd_t,h):
-        return (torch.sqrt(self.config.N * self.config.B / (sum(torch.linalg.matrix_norm(wa @ wd_t, ord='fro') ** 2)))).reshape(len(h[0]),
+    def wd_projection(self,wa,wd_t,h,perform_proj):
+        if perform_proj:
+            return (torch.sqrt(self.config.N * self.config.B / (sum(torch.linalg.matrix_norm(wa @ wd_t, ord='fro') ** 2)))).reshape(len(h[0]),
                                                                                                               1,
                                                                                                               1) * wd_t
+        else:
+            return wd_t
 
     @Timer.timeit
     def calc_sum_rate(self, h, wa, wd):

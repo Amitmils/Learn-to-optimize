@@ -20,9 +20,9 @@ if __name__ == "__main__":
     # ---- Classical PGA ----
     classic_model = PGA(config,config.num_of_iter_pga)
     Timer.enabled = True
-    sum_rate_class, wa, wd = classic_model.forward(H_test,config.num_of_iter_pga,plot=False)
-    Timer.save_time_telemetery()
-
+    sum_rate_class, wa, wd = classic_model.forward(H_test,config.num_of_iter_pga,plot=True)
+    Timer.save_time_telemetry(save_path="time_telemetry.csv")
+    exit()
     # ---- Unfolded PGA ----
     Timer.enabled = False    
     unfolded_model = Unfolded_PGA(config)

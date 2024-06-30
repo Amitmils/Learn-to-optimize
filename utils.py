@@ -42,7 +42,7 @@ class Timer:
         return timed
     
     @staticmethod
-    def save_time_telemetery():
+    def save_time_telemetry(save_path):
         columns = ['Description']
         data_per_iter = list()
         num_iterations = len(Timer.time_telemetry)
@@ -93,7 +93,7 @@ class Timer:
         columns.append(f' % of forward')
 
         df = pd.DataFrame(time_summary, columns=columns)
-        df.to_csv("time_telemetry.csv", index=False)
+        df.to_csv(save_path, index=False)
 
 def set_device():
     if torch.cuda.is_available(): #set defaults before importing scripts
