@@ -9,11 +9,12 @@ test_size : 100
 
 num_of_iter_pga : 40 # num classical pga iterations
 num_of_iter_pga_unf : 5 # num unfolded pga iterations
-proj_iter_rate : 4 # num iterations between each proj
+proj_iter_rate : 1 # num iterations between each proj
 
 
 # training parameters
+mu_matrix : True
 lr : 0.4
-epochs : 30
+epochs : 110
 batch_size : 100  # batch size
 

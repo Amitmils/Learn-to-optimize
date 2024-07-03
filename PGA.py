@@ -8,7 +8,18 @@ class PGA(nn.Module):
     def __init__(self,config,num_iter,pga_type='Classic'):
         super().__init__()
         self.config = config
-        mu= torch.tensor([[50 * 1e-2] * (config.B+1)] *num_iter, requires_grad=True)
+        if config.mu_matrix:
+            tensor_shape = (num_iter, (config.B+1), max(config.M, config.L), max(config.L, config.N))
+        else:
+            tensor_shape = (num_iter, (config.B+1))
+
+        mu = torch.zeros(tensor_shape, device='cuda')
+        if pga_type == 'Classic' or True:
+            mu +=50 * 1e-2
+            # nn.init.normal_(mu, mean=50 * 1e-2, std=0.01)
+
+        # nn.init.xavier_uniform_(mu)#normal_(mu, mean=0.0, std=0.01) # uniform_ xavier_uniform_(mu)
+      
         self.hyp = nn.Parameter(mu)  # parameters = (mu_a, mu_(d,1), ..., mu_(d,B))
         self.pga_type = pga_type
 
@@ -27,7 +38,7 @@ class PGA(nn.Module):
         if plot:
             #only true for classical PGA
             plt.figure()
-            y = [r.detach().numpy() for r in (sum(sum_rate)/h.shape[1])]
+            y = [r.detach().numpy() for r in (sum(sum_rate.cpu())/h.shape[1])]
             x = np.array(list(range(num_of_iter))) +1
             plt.scatter(x, y, s=7)
             plt.title(f'The Average Achievable Sum-Rate of the Test Set \n in Each Iteration of the {self.pga_type} PGA')
@@ -40,8 +51,7 @@ class PGA(nn.Module):
     @Timer.timeit
     def init_variables(self,h):
         # svd for H_avg --> H = u*smat*vh
-        _, _, vh = np.linalg.svd(sum(h) / self.config.B, full_matrices=True)
-        vh = torch.from_numpy(vh)
+        _, _, vh = torch.linalg.svd(sum(h) / self.config.B, full_matrices=True)
         # initializing Wa as vh
         wa = vh[:, :, :self.config.L]
         wa = torch.cat(((wa[None, :, :, :],) * self.config.B), 0)
@@ -53,15 +63,22 @@ class PGA(nn.Module):
 
     @Timer.timeit
     def perform_iter(self,h,wa,wd,sum_rate,iter_num,total_num_iter):
+        perform_proj = self.config.proj_iter_rate == 1 or (iter_num % self.config.proj_iter_rate == 0 and iter_num>0) or iter_num == total_num_iter - 1#Perform Projection according to proj rate and always perform on last iter
+
         # ---------- Wa ---------------
-        wa_t = wa + self.hyp[iter_num][0] * self.grad_wa(h, wa, wd) #gradient ascent
-        wa = self.wa_projection(wa_t,wd,h)
+        if self.config.mu_matrix:
+            wa_t = wa + self.hyp[iter_num][0][:self.config.M,:self.config.L] * self.grad_wa(h, wa, wd) #gradient ascent
+        else:
+            wa_t = wa + self.hyp[iter_num][0] * self.grad_wa(h, wa, wd).detach() #gradient ascent
+        wa = self.wa_projection(wa_t,wd,h,True)
 
         # ---------- Wd,b ---------------
         wd_t = wd.clone().detach()
         for i in range(self.config.B):
-            wd_t[i] = wd[i].clone().detach() + self.hyp[iter_num][i + 1] * self.grad_wd(h[i], wa[0], wd[i].clone().detach()) # gradient ascent
-            perform_proj = self.config.proj_iter_rate == 1 or (iter_num % self.config.proj_iter_rate == 0 and iter_num>0) or iter_num == total_num_iter - 1#Perform Projection according to proj rate and always perform on last iter
+            if self.config.mu_matrix:
+                wd_t[i] = wd[i].clone().detach() + self.hyp[iter_num][i + 1][:self.config.L,:self.config.N] * self.grad_wd(h[i], wa[0], wd[i].clone().detach()) # gradient ascent
+            else:
+                wd_t[i] = wd[i].clone().detach() + self.hyp[iter_num][i + 1] * self.grad_wd(h[i], wa[0], wd[i].clone().detach()).detach() # gradient ascent
             wd = self.wd_projection(wa,wd_t,h,perform_proj) #if perform_proj == False return wd_t
 
 
@@ -82,10 +99,11 @@ class PGA(nn.Module):
         return torch.cat(((f2[None, :, :, :],) * self.config.B), 0)
 
     @Timer.timeit
-    def wa_projection(self,wa_t,wd,h):
-        return (torch.sqrt(self.config.N * self.config.B / (sum(torch.linalg.matrix_norm(wa_t @ wd, ord='fro') ** 2)))).reshape(len(h[0]), 1,
-                                                                                                          1) * wa_t
-
+    def wa_projection(self,wa_t,wd,h,perform_proj):
+        if perform_proj:
+            return (torch.sqrt(self.config.N * self.config.B / (sum(torch.linalg.matrix_norm(wa_t @ wd, ord='fro') ** 2)))).reshape(len(h[0]), 1,                                                                                             1) * wa_t
+        else:
+            return wa_t
     @Timer.timeit
     def grad_wd(self, h, wa, wd):
         # calculates the gradient with respect to wd,b for a given channel (h) and precoders (wa, wd)

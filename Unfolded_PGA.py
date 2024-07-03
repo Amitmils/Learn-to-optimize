@@ -3,6 +3,7 @@ import torch
 import numpy as np
 from utils import Timer
 from PGA import PGA
+import torch.nn as nn
 
 class Unfolded_PGA():
     def __init__(self,config) -> None:
@@ -15,8 +16,10 @@ class Unfolded_PGA():
     def train(self,H_train,H_val):
         self.PGA.train()
         train_losses, val_losses = list(),list()
+        best_loss = torch.inf
+        best_mu = 0
         for i in range(self.config.epochs):
-            print(f"epoch {i}")
+            self.PGA.train()
             H_shuffeld = torch.transpose(H_train, 0, 1)[np.random.permutation(len(H_train[1]))]
             for b in range(0, len(H_train), self.config.batch_size):
                 H = torch.transpose(H_shuffeld[b:b+self.config.batch_size], 0, 1)
@@ -28,28 +31,39 @@ class Unfolded_PGA():
                 loss.backward()
                 self.optimizer.step()
 
-            # train loss
-            sum_rate_per_iter, wa, wd = self.PGA.forward(H_train ,self.config.num_of_iter_pga_unf)
-            train_losses.append(self.calc_loss(sum_rate_per_iter))
-            # train_losses.append(self.sum_loss(wa, wd, H_train, self.config.train_size))
+            self.PGA.eval()
+            with torch.no_grad():
+                # train loss
+                sum_rate_per_iter, wa, wd = self.PGA.forward(H_train ,self.config.num_of_iter_pga_unf)
+                train_losses.append(self.calc_loss(sum_rate_per_iter))
+                # train_losses.append(self.sum_loss(wa, wd, H_train, self.config.train_size))
 
-            # validation loss
-            sum_rate_per_iter, wa, wd = self.PGA.forward(H_val, self.config.num_of_iter_pga_unf)
-            val_losses.append(self.calc_loss(sum_rate_per_iter))
-            # val_losses.append(self.sum_loss(wa, wd, H_val, self.config.valid_size))
+                # validation loss
+                sum_rate_per_iter, wa, wd = self.PGA.forward(H_val, self.config.num_of_iter_pga_unf)
+                val_losses.append(self.calc_loss(sum_rate_per_iter))
+                # val_losses.append(self.sum_loss(wa, wd, H_val, self.config.valid_size))
+                
+            if val_losses[-1] < best_loss:
+                    best_loss = val_losses[-1]
+                    best_mu = self.PGA.hyp.detach()
+                    best_loss_epoch = i
+            
+            print(f"{i} Loss Training : {train_losses[-1]:.2f} Loss Validation : {val_losses[-1]:.2f} ")
+            print(f"Optimal MSE : {best_loss:.2f}  Epoch {best_loss_epoch}")
 
+        self.PGA.hyp = nn.Parameter(best_mu)
         self.plot_learning_curve(train_losses,val_losses)
         return train_losses,val_losses
     
-    def eval(self,H_test):
+    def eval(self,H_test,plot=True):
         self.PGA.eval()
-        sum_rate_unf, __, __ = self.PGA.forward(H_test, self.config.num_of_iter_pga_unf,plot=True)
-        return sum_rate_unf
+        sum_rate_unf, __, __ = self.PGA.forward(H_test, self.config.num_of_iter_pga_unf,plot=plot)
+        return sum_rate_unf.detach().cpu()
 
     def plot_learning_curve(self,train_losses,val_losses):
-        y_t = [r.detach().numpy() for r in train_losses]
+        y_t = [r.detach().cpu().numpy() for r in train_losses]
         x_t = np.array(list(range(len(train_losses))))
-        y_v = [r.detach().numpy() for r in val_losses]
+        y_v = [r.detach().cpu().numpy() for r in val_losses]
         x_v = np.array(list(range(len(val_losses))))
         plt.figure()
         plt.plot(x_t, y_t, 'o', label='Train')
