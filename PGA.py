@@ -69,8 +69,8 @@ class PGA(nn.Module):
         if self.config.mu_matrix:
             wa_t = wa + self.hyp[iter_num][0][:self.config.M,:self.config.L] * self.grad_wa(h, wa, wd) #gradient ascent
         else:
-            wa_t = wa + self.hyp[iter_num][0] * self.grad_wa(h, wa, wd).detach() #gradient ascent
-        wa = self.wa_projection(wa_t,wd,h,True)
+            wa_t = wa + self.hyp[iter_num][0] * self.grad_wa(h, wa, wd) #gradient ascent
+        wa = self.wa_projection(wa_t,wd,h,perform_proj)
 
         # ---------- Wd,b ---------------
         wd_t = wd.clone().detach()
@@ -78,8 +78,8 @@ class PGA(nn.Module):
             if self.config.mu_matrix:
                 wd_t[i] = wd[i].clone().detach() + self.hyp[iter_num][i + 1][:self.config.L,:self.config.N] * self.grad_wd(h[i], wa[0], wd[i].clone().detach()) # gradient ascent
             else:
-                wd_t[i] = wd[i].clone().detach() + self.hyp[iter_num][i + 1] * self.grad_wd(h[i], wa[0], wd[i].clone().detach()).detach() # gradient ascent
-            wd = self.wd_projection(wa,wd_t,h,perform_proj) #if perform_proj == False return wd_t
+                wd_t[i] = wd[i].clone().detach() + self.hyp[iter_num][i + 1] * self.grad_wd(h[i], wa[0], wd[i].clone().detach()) # gradient ascent
+        wd = self.wd_projection(wa,wd_t,h,perform_proj) #if perform_proj == False return wd_t
 
 
         # update the rate
