@@ -95,8 +95,8 @@ class Timer:
         df = pd.DataFrame(time_summary, columns=columns)
         df.to_csv(save_path, index=False)
 
-def set_device():
-    if torch.cuda.is_available(): #set defaults before importing scripts
+def set_device(use_cuda):
+    if torch.cuda.is_available() and use_cuda: #set defaults before importing scripts
         device = torch.device('cuda')
         print("Using GPU:", torch.cuda.get_device_name(torch.cuda.current_device()))
         torch.set_default_dtype(torch.float32)  # Set default data type

@@ -9,12 +9,18 @@ test_size : 100
 
 num_of_iter_pga : 40 # num classical pga iterations
 num_of_iter_pga_unf : 5 # num unfolded pga iterations
-proj_iter_rate : 1 # num iterations between each proj
+proj_iter_rate : 1000 # num iterations between each proj
 
 
 # training parameters
+train : True
 mu_matrix : True
-lr : 0.4
-epochs : 110
+lr : 0.01
+epochs : 5000
 batch_size : 100  # batch size
+loss : "one_iter" # "all_iter" "some_iter"
+full_grad_Wd_iter : [1,3,4] #iterations on which to do full grad for dWd
 
+use_cuda : True
+Wa_G_I : False
+Wa_G_Ones : False
