@@ -76,7 +76,7 @@ class PGA(nn.Module):
         # ---------- Wd,b ---------------
         wd_t = wd.clone().detach()
         for i in range(self.config.B):
-            if iter_num not in self.config.full_grad_Wd_iter:
+            if iter_num == 0 or iter_num == 2 :
                 full_grad = False
             else:
                 full_grad = True

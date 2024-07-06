@@ -66,22 +66,16 @@ class Unfolded_PGA():
         plt.plot(x_t, y_t, 'o', label='Train')
         plt.plot(x_v, y_v, '*', label='Valid')
         plt.grid()
-        plt.title(f'Loss Curve, Num Epochs = {self.config.epochs}, Batch Size = {self.config.batch_size} \n Num of Iterations of PGA = {self.config.num_of_iter_pga_unf}, Loss = {self.config.loss}')
+        plt.title(f'Loss Curve, Num Epochs = {self.config.epochs}, Batch Size = {self.config.batch_size} \n Num of Iterations of PGA = {self.config.num_of_iter_pga_unf}, Last Iter Loss = {self.config.loss_only_one_iter}')
         plt.xlabel('Epoch')
         plt.legend(loc='best')
 
     def calc_loss(self,sum_rate_per_iter,loss_iter = -1):
-        if self.config.loss == 'one_iter':
+        if self.config.loss_only_one_iter:
             return -torch.mean(sum_rate_per_iter,dim=0)[loss_iter]
-
-        elif self.config.loss == 'all_iter':
+        else:
             _,num_iter = sum_rate_per_iter.shape
-            weights =torch.log(torch.arange(2,2 + num_iter))
-            loss = -torch.mean(sum_rate_per_iter * weights)
-
-        elif self.config.loss == 'some_iter':
-            weights =torch.log(torch.arange(2,2 + len(self.config.full_grad_Wd_iter)))
-            loss = -torch.mean(sum_rate_per_iter[:,self.config.full_grad_Wd_iter] * weights)
-
-        return loss
+            weights =torch.log(torch.arange(2,2+num_iter - 2))
+            loss = -torch.mean(sum_rate_per_iter[:,[1,3,4]] * weights)
+            return loss
 

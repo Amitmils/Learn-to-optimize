@@ -23,23 +23,23 @@ if __name__ == "__main__":
     sum_rate_class =sum_rate_class.detach().cpu()
     Timer.save_time_telemetry(save_path="time_telemetry.csv")
     
-    num_trials = 5
+    num_trials = 2
     Total_Summary = ""
     trial_num = 0
     for trial_num in range(num_trials):
-        for trial_loss in ["one_iter","all_iter","some_iter"]:
-                config.loss = trial_loss
+        # for trial_loss in ["one_iter","all_iter","some_iter"]:
+        #         config.loss = trial_loss
                 # ---- Unfolded PGA ----
                 Timer.enabled = False    
                 unfolded_model = Unfolded_PGA(config)
                 if config.train:
                     train_losses,valid_losses = unfolded_model.train(H_train,H_val)
                 sum_rate_unfold = unfolded_model.eval(H_test, plot = False)
-                trial_summary = f"Achievable Rate Per Iter : {sum(sum_rate_unfold)/sum_rate_unfold.shape[0]}  K = {config.num_of_iter_pga_unf} Trial = {trial_num} Full Grad Wd Iter {config.full_grad_Wd_iter} Loss = {config.loss}"
+                trial_summary = f"Achievable Rate Per Iter : {sum(sum_rate_unfold)/sum_rate_unfold.shape[0]}  K = {config.num_of_iter_pga_unf} Trial = {trial_num} "#)Full Grad Wd Iter {config.full_grad_Wd_iter} Loss = {config.loss}"
                 Total_Summary = Total_Summary + "\n" + trial_summary
                 print(trial_summary)
                 plt.figure()
-                plt.title(f"Rayleigh Channel, K = {config.num_of_iter_pga_unf}, Trial = {trial_num} \n Loss = {config.loss}")
+                plt.title(f"Rayleigh Channel, K = {config.num_of_iter_pga_unf}, Trial = {trial_num}")# \n Loss = {config.loss}")
                 plt.plot(range(1,sum_rate_unfold.shape[1]+1),sum(sum_rate_unfold)/sum_rate_unfold.shape[0],marker='*',label=f'Unfolded ({(sum(sum_rate_unfold)/sum_rate_unfold.shape[0])[-1]:.2f})')
                 plt.plot(range(1,sum_rate_class.shape[1]+1),[r for r in (sum(sum_rate_class)/sum_rate_class.shape[0])],marker='+',label=f'Classic ({(sum(sum_rate_class)/sum_rate_class.shape[0])[-1]:.2f})')
                 plt.xlabel('Number of Iteration')
