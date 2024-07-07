@@ -17,11 +17,11 @@ proj_iter_rate : 1000 # num iterations between each proj
 train : True
 mu_matrix : True
 lr : 0.01
-epochs : 5000
+epochs : 1
 batch_size : 100  # batch size
 loss : "one_iter" # "all_iter" "some_iter"
 full_grad_Wd_iter : [1,3,4] #iterations on which to do full grad for dWd
 
 use_cuda : True
 Wa_G_I : False
-Wa_G_Ones : False
+Wa_G_Ones : True
