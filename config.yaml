@@ -3,6 +3,7 @@ N : 6      # Num of users
 L : 10      # RF chains
 M : 12     # Tx antennas
 
+create_dataset : False
 train_size : 1000
 valid_size : 100
 test_size : 100
