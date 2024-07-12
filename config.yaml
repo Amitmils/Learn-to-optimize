@@ -3,7 +3,9 @@ N : 6      # Num of users
 M : 12     # Tx antennas
 L : 10      # RF chains
 
-dataset_type : "QUAD" #"IID"
+dataset_type : "QUAD" # "Rayleigh"
+Quad_data_path : 'DataGen/MU_MIMO/MU_MIMO/H_1200Channels_8B_12M_6N.mat'
+Rayleigh_data_path : Rayleigh_dataset.pt.pt
 create_IID_dataset : False #only relevant if IID dataset chosen
 train_size : 1000
 valid_size : 100

@@ -18,22 +18,22 @@ if __name__ == "__main__":
 
 
     if config.dataset_type == "QUAD":
-        H_all_channels = torch.tensor(io.loadmat('DataGen/MU_MIMO/MU_MIMO/H_1200Channels_8B_12M_6N.mat')['H']).to(config.device).transpose(0,1).transpose(3,0).transpose(2,3).to(torch.complex128)
+        H_all_channels = torch.tensor(io.loadmat(config.Quad_data_path)['H']).to(config.device).transpose(0,1).transpose(3,0).transpose(2,3).to(torch.complex128)
         H_train = H_all_channels[:,:config.train_size]
         H_val = H_all_channels[:,config.train_size:config.train_size + config.valid_size]
         H_test = H_all_channels[:,config.train_size + config.valid_size:]
 
-    elif config.dataset_type == "IID":
+    elif config.dataset_type == "Rayleigh":
         if config.create_IID_dataset:
             # ---- Create Datasets ----
             print("\n\nGenerate Dataset...")
             H_train = torch.randn(config.B, config.train_size, config.N, config.M)
             H_val = torch.randn(config.B, config.valid_size, config.N, config.M)
             H_test = torch.randn(config.B, config.test_size, config.N, config.M)
-            torch.save([H_train,H_val,H_test],"Rayleigh_dataset.pt.pt")
+            torch.save([H_train,H_val,H_test],config.Rayleigh_data_path)
         else:
             print("\n\nLoaded Dataset...")
-            H_train,H_val,H_test = torch.load("Rayleigh_dataset.pt.pt")
+            H_train,H_val,H_test = torch.load(config.Rayleigh_data_path)
             H_train = H_train.to(config.device)
             H_val = H_val.to(config.device)
             H_test = H_test.to(config.device)
