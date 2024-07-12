@@ -13,9 +13,9 @@ class Unfolded_PGA():
         self.config = config
         today = datetime.today()
         now = datetime.now()
-        self.run_name = f"{today.strftime('D%d_M%m')}_{now.strftime('h%H_m%M')}___K_{config.num_of_iter_pga_unf}__loss_{config.loss}__dWaOnes_{config.Wa_G_Ones}__dWaI_{config.Wa_G_I}__dWd_{'-'.join([str(itr) for itr in config.full_grad_Wd_iter])}"
+        self.run_name = f"{today.strftime('D%d_M%m')}_{now.strftime('h%H_m%M')}__{self.config.dataset_type}_SET__K_{config.num_of_iter_pga_unf}__loss_{config.loss}__WaConst_{self.config.Wa_constrained}__Q_{config.Freq_bins_for_Wa_grad}__dWdAlt_{config.alternate_dWd_bins}"
         self.run_folder = os.path.join("runs",self.run_name)
-        os.makedirs(self.run_folder)
+        os.makedirs(self.run_folder,exist_ok=True)
         self.PGA = PGA(config,config.num_of_iter_pga_unf,pga_type='Unfolded')
         self.optimizer = torch.optim.Adam(self.PGA.parameters(), lr=self.config.lr)
         Timer.enabled = False
@@ -50,16 +50,23 @@ class Unfolded_PGA():
             if val_losses[-1] < best_loss:
                     best_loss = val_losses[-1]
                     best_loss_epoch = i
-                    torch.save(self.PGA.state_dict(),os.path.join(self.run_folder,"PGA_model.pth"))
+                    torch.save(self.PGA,os.path.join(self.run_folder,"PGA_model.pth"))
             
             print(f"{i} Loss Training : {train_losses[-1]:.2f} Loss Validation : {val_losses[-1]:.2f} ")
             print(f"Optimal MSE : {best_loss:.2f}  Epoch {best_loss_epoch}")
 
         self.plot_learning_curve(train_losses,val_losses)
+        self.best_loss = best_loss
+        self.best_loss_epoch = best_loss_epoch
         return train_losses,val_losses
     
     def eval(self,H_test,plot=True):
-        self.PGA.load_state_dict(torch.load(os.path.join(self.run_folder,"PGA_model.pth")))
+        if self.config.model is None or self.config.train == True:
+            model_path = os.path.join(self.run_folder,"PGA_model.pth")
+        else:
+            model_path = self.config.model
+        print(f"Loading Model : {model_path}")
+        self.PGA = torch.load(model_path).to(self.config.device)
         self.PGA.eval()
         sum_rate_unf, __, __ = self.PGA.forward(H_test,plot=plot)
         sum_rate_unf = sum_rate_unf.detach().cpu()
@@ -84,9 +91,18 @@ class Unfolded_PGA():
         with open(os.path.join(self.run_folder,"run_summary.txt"),'w') as file:
             for key,value in vars(self.config).items():
                 file.write(f"{key} : {value}\n")
+            file.write("\n")
+            file.write(f"Full Grad Iter Map:\n")
+            for k in range(self.config.num_of_iter_pga_unf):
+                    file.write(f"Iter : {k} ||")
+                    for bin in range(self.config.B):
+                        file.write(f"| Bin{bin} - {self.PGA.is_dWd_full_grad(k,bin)}".ljust(15))
+                    file.write('\n')
+
             file.write("\n\n")
             file.write(f"AVG Sum Rate Per Iter: {sum(sum_rate)/sum_rate.shape[0]}\n")
             file.write(f"STD Sum Rate Per Iter: {torch.std(sum_rate,dim=0)}\n")
+            file.write(f"Best Loss : {self.best_loss} , Epoch : {self.best_loss_epoch}" )
             
     def calc_loss(self,sum_rate_per_iter,loss_iter = -1):
         if self.config.loss == 'one_iter':
