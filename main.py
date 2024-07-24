@@ -53,30 +53,27 @@ if __name__ == "__main__":
     sum_rate_class =sum_rate_class.detach().cpu()
     Timer.save_time_telemetry(save_path="time_telemetry.csv")
 
+    Timer.enabled = False    
     num_trials = 1
     Total_Summary = ""
     for trial_num in range(num_trials):
         for k in [5]:
-            config.num_of_iter_pga_unf = k
-            for loss in ['one_iter']:
-                    config.loss = loss
-                    # ---- Unfolded PGA ----
-                    Timer.enabled = False    
-                    unfolded_model = Unfolded_PGA(config)
-                    if config.train:
-                        train_losses,valid_losses = unfolded_model.train(H_train,H_val)
-                    sum_rate_unfold = unfolded_model.eval(H_test, plot = False)
-                    trial_summary = f"AVG Rate Per Iter : {sum(sum_rate_unfold)/sum_rate_unfold.shape[0]} STD Rate Per Iter : {torch.std(sum_rate_unfold,dim=0)} K = {config.num_of_iter_pga_unf} Trial = {trial_num} Q = {config.Freq_bins_for_Wa_grad} Loss = {config.loss}"
-                    Total_Summary = Total_Summary + "\n" + trial_summary
-                    print(trial_summary)
-                    plt.figure()
-                    plt.title(f"Rayleigh Channel, W, Trial = {trial_num} \n Loss = {config.loss}")
-                    plt.plot(range(1,sum_rate_unfold.shape[1]+1),sum(sum_rate_unfold)/sum_rate_unfold.shape[0],marker='*',label=f'Unfolded ({(sum(sum_rate_unfold)/sum_rate_unfold.shape[0])[-1]:.2f},{torch.std(sum_rate_unfold,dim=0)[-1].item():.2f})')
-                    plt.plot(range(1,sum_rate_class.shape[1]+1),[r for r in (sum(sum_rate_class)/sum_rate_class.shape[0])],marker='+',label=f'Classic ({(sum(sum_rate_class)/sum_rate_class.shape[0])[-1]:.2f},{torch.std(sum_rate_class,dim=0)[-1].item():.2f})')
-                    plt.xlabel('Number of Iteration')
-                    plt.ylabel('Achievable Rate')
-                    plt.legend()
-                    plt.savefig(os.path.join(unfolded_model.run_folder,"Test_Result.png"))
+            # ---- Unfolded PGA ----
+            unfolded_model = Unfolded_PGA(config)
+            if config.train:
+                train_losses,valid_losses = unfolded_model.train(H_train,H_val)
+            sum_rate_unfold = unfolded_model.eval(H_test, plot = False)
+            trial_summary = f"AVG Rate Per Iter : {sum(sum_rate_unfold)/sum_rate_unfold.shape[0]} STD Rate Per Iter : {torch.std(sum_rate_unfold,dim=0)} K = {unfolded_model.PGA.config.num_of_iter_pga_unf} Trial = {trial_num} Q = {unfolded_model.PGA.config.Freq_bins_for_Wa_grad} Loss = {unfolded_model.PGA.config.loss}"
+            Total_Summary = Total_Summary + "\n" + trial_summary
+            print(trial_summary)
+            plt.figure()
+            plt.title(f"{config.dataset_type} Channel, W, Trial = {trial_num} \n Loss = {config.loss}")
+            plt.plot(range(1,sum_rate_unfold.shape[1]+1),sum(sum_rate_unfold)/sum_rate_unfold.shape[0],marker='*',label=f'Unfolded ({(sum(sum_rate_unfold)/sum_rate_unfold.shape[0])[-1]:.2f},{torch.std(sum_rate_unfold,dim=0)[-1].item():.2f})')
+            plt.plot(range(1,sum_rate_class.shape[1]+1),[r for r in (sum(sum_rate_class)/sum_rate_class.shape[0])],marker='+',label=f'Classic ({(sum(sum_rate_class)/sum_rate_class.shape[0])[-1]:.2f},{torch.std(sum_rate_class,dim=0)[-1].item():.2f})')
+            plt.xlabel('Number of Iteration')
+            plt.ylabel('Achievable Rate')
+            plt.legend()
+            plt.savefig(os.path.join(unfolded_model.run_folder,"Test_Result.png"))
     print(f"\n\nTotal Summary :\n{Total_Summary}")
 
 

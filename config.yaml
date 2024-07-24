@@ -20,7 +20,7 @@ mu_matrix : True
 lr : 0.01
 epochs : 5000
 batch_size : 100  # batch size
-loss : "all_iter" # "all_iter" "some_iter"
+loss : "one_iter" # "all_iter" "some_iter"
 model : null #Only used when train == False
 
 #dWd options
@@ -31,5 +31,5 @@ use_cuda : True
 #dWa options
 Wa_constrained : True
 Wa_G_I : False
-Wa_G_Ones : False
-Freq_bins_for_Wa_grad : 2 #Instead of summing B freq bins, randomly choose Wa_B_grad bins 
+Wa_G_Ones : True
+Freq_bins_for_Wa_grad : 8 #Instead of summing B freq bins, randomly choose Wa_B_grad bins 

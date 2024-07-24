@@ -13,8 +13,9 @@ class Unfolded_PGA():
         self.config = config
         today = datetime.today()
         now = datetime.now()
+        data_set_folder = f"{self.config.dataset_type}_SET__{self.config.B}B__{self.config.N}N__{self.config.M}M__{self.config.L}L"
         self.run_name = f"{today.strftime('D%d_M%m')}_{now.strftime('h%H_m%M')}__{self.config.dataset_type}_SET__K_{config.num_of_iter_pga_unf}__loss_{config.loss}__WaConst_{self.config.Wa_constrained}__Q_{config.Freq_bins_for_Wa_grad}__dWdAlt_{config.alternate_dWd_bins}"
-        self.run_folder = os.path.join("runs",self.run_name)
+        self.run_folder = os.path.join("runs",data_set_folder,self.run_name)
         os.makedirs(self.run_folder,exist_ok=True)
         self.PGA = PGA(config,config.num_of_iter_pga_unf,pga_type='Unfolded')
         self.optimizer = torch.optim.Adam(self.PGA.parameters(), lr=self.config.lr)
@@ -102,7 +103,8 @@ class Unfolded_PGA():
             file.write("\n\n")
             file.write(f"AVG Sum Rate Per Iter: {sum(sum_rate)/sum_rate.shape[0]}\n")
             file.write(f"STD Sum Rate Per Iter: {torch.std(sum_rate,dim=0)}\n")
-            file.write(f"Best Loss : {self.best_loss} , Epoch : {self.best_loss_epoch}" )
+            if self.config.train:
+                file.write(f"Best Loss : {self.best_loss} , Epoch : {self.best_loss_epoch}" )
             
     def calc_loss(self,sum_rate_per_iter,loss_iter = -1):
         if self.config.loss == 'one_iter':

@@ -83,7 +83,7 @@ class PGA(nn.Module):
             wa_t = wa + self.hyp[iter_num][0][:self.config.M,:self.config.L] * self.grad_wa(h, wa, wd) #gradient ascent
         else:
             wa_t = wa + self.hyp[iter_num][0] * self.grad_wa(h, wa, wd) #gradient ascent
-        perform_proj = self.config.Wa_constrained or self.num_iter - 1 == iter_num
+        perform_proj = True or self.config.Wa_constrained or self.num_iter - 1 == iter_num
         wa = self.wa_projection(wa_t,wd,h,perform_proj)
 
         # ---------- Wd,b ---------------
@@ -117,13 +117,13 @@ class PGA(nn.Module):
                                                                              torch.transpose(wd, 2, 3).conj() @
                                                                              torch.transpose(h_wa, 2, 3).conj()), 2, 3)
                                                                              @ h_wa.conj() @ wd.conj() @
-                                                                             torch.transpose(wd, 2, 3),axis=0)
+                                                                             torch.transpose(wd, 2, 3).conj(),axis=0)
         elif self.config.Wa_G_I:
             h_wa = h @ wa
             f2 = torch.mean(torch.transpose(h, 2, 3) @ torch.transpose(torch.eye(self.config.N).reshape((1, 1, self.config.N, self.config.N)
                                                                              ), 2, 3)
                                                                              @ h_wa.conj() @ wd.conj() @
-                                                                             torch.transpose(wd, 2, 3),axis=0)
+                                                                             torch.transpose(wd, 2, 3).conj(),axis=0)
         elif self.config.Wa_G_Ones:
             return torch.ones_like(wa)
         return torch.cat(((f2[None, :, :, :],) * self.config.B), 0)
