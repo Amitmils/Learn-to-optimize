@@ -67,7 +67,15 @@ class Unfolded_PGA():
         else:
             model_path = self.config.model
         print(f"Loading Model : {model_path}")
-        self.PGA = torch.load(model_path).to(self.config.device)
+        self.PGA = torch.load(model_path,map_location=self.config.device)
+        # #backward compatability
+        # try:
+        #     self.PGA.config.approx_dWd = self.PGA.config.alternate_dWd_bins
+        #     if self.PGA.config.approx_dWd:
+        #         self.PGA.config.iters_to_approx = [1,3]
+        #     torch.save(self.PGA,model_path)
+        # except:
+        #     ""
         self.PGA.eval()
         sum_rate_unf, __, __ = self.PGA.forward(H_test,plot=plot)
         sum_rate_unf = sum_rate_unf.detach().cpu()
