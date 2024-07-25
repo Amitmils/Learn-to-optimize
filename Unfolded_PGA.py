@@ -14,7 +14,7 @@ class Unfolded_PGA():
         today = datetime.today()
         now = datetime.now()
         data_set_folder = f"{self.config.dataset_type}_SET__{self.config.B}B__{self.config.N}N__{self.config.M}M__{self.config.L}L"
-        self.run_name = f"{today.strftime('D%d_M%m')}_{now.strftime('h%H_m%M')}__K_{config.num_of_iter_pga_unf}__loss_{config.loss}__WaConst_{self.config.Wa_constrained}__dWaOnes_{config.Wa_G_Ones}__Q_{config.Freq_bins_for_Wa_grad}__dWdApprox_{'_'.join(map(str, config.iters_to_approx)) if config.approx_dWd else 'False'}"
+        self.run_name = f"{today.strftime('D%d_M%m')}_{now.strftime('h%H_m%M')}__K_{config.num_of_iter_pga_unf}__loss_{config.loss}__WaConst_{self.config.Wa_constrained}__dWaOnes_{config.dWa_G_Ones}__Q_{config.Freq_bins_for_stoch_dWa if config.stoch_dWa else config.B}__dWdApprox_{'_'.join(map(str, config.iters_to_approx)) if config.approx_dWd else 'False'}"
         self.run_folder = os.path.join("runs",data_set_folder,self.run_name)
         os.makedirs(self.run_folder,exist_ok=True)
         self.PGA = PGA(config,config.num_of_iter_pga_unf,pga_type='Unfolded')
@@ -69,13 +69,13 @@ class Unfolded_PGA():
         print(f"Loading Model : {model_path}")
         self.PGA = torch.load(model_path,map_location=self.config.device)
         # #backward compatability
-        # try:
-        #     self.PGA.config.approx_dWd = self.PGA.config.alternate_dWd_bins
-        #     if self.PGA.config.approx_dWd:
-        #         self.PGA.config.iters_to_approx = [1,3]
-        #     torch.save(self.PGA,model_path)
-        # except:
-        #     ""
+        try:
+            self.PGA.config.approx_dWd = self.PGA.config.alternate_dWd_bins
+            if self.PGA.config.approx_dWd:
+                self.PGA.config.iters_to_approx = [1,3]
+            torch.save(self.PGA,model_path)
+        except:
+            ""
         self.PGA.eval()
         sum_rate_unf, __, __ = self.PGA.forward(H_test,plot=plot)
         sum_rate_unf = sum_rate_unf.detach().cpu()

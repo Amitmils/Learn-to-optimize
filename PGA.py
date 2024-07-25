@@ -15,7 +15,6 @@ class PGA(nn.Module):
         else:
             tensor_shape = (num_iter, (config.B+1))
 
-
         mu = torch.zeros(tensor_shape)
         if pga_type == 'Classic' or True:
             mu +=50 * 1e-2
@@ -88,7 +87,6 @@ class PGA(nn.Module):
 
         # ---------- Wd,b ---------------
         wd_t = wd.clone().detach()
-        alt_bins = self.config.B // (self.config.num_of_iter_pga_unf - 1)
         for i in range(self.config.B):
             full_grad = self.is_dWd_full_grad(iter_num,i)
             if self.config.mu_matrix:
@@ -105,12 +103,12 @@ class PGA(nn.Module):
     @Timer.timeit
     def grad_wa(self, h, wa, wd):
         # calculates the gradient with respect to wa for a given channel (h) and precoders (wa, wd)
-        if self.pga_type != 'Classic':
-            permutation = torch.randperm(self.config.B)[:self.config.Freq_bins_for_Wa_grad]
+        if self.pga_type != 'Classic' and self.config.stoch_dWa:
+            permutation = torch.randperm(self.config.B)[:self.config.Freq_bins_for_stoch_dWa]
             h = h[permutation]
             wa = wa[permutation]
             wd = wd[permutation]
-        if self.pga_type == 'Classic' or (not(self.config.Wa_G_I) and not(self.config.Wa_G_Ones)):
+        if self.pga_type == 'Classic' or (not(self.config.dWa_G_I) and not(self.config.dWa_G_Ones)):
             h_wa = h @ wa
             f2 = torch.mean(torch.transpose(h, 2, 3) @ torch.transpose(torch.linalg.inv(torch.eye(self.config.N).reshape((1, 1, self.config.N, self.config.N))
                                                                              + h_wa @ wd @
@@ -118,13 +116,13 @@ class PGA(nn.Module):
                                                                              torch.transpose(h_wa, 2, 3).conj()), 2, 3)
                                                                              @ h_wa.conj() @ wd.conj() @
                                                                              torch.transpose(wd, 2, 3).conj(),axis=0)
-        elif self.config.Wa_G_I:
+        elif self.config.dWa_G_I:
             h_wa = h @ wa
             f2 = torch.mean(torch.transpose(h, 2, 3) @ torch.transpose(torch.eye(self.config.N).reshape((1, 1, self.config.N, self.config.N)
                                                                              ), 2, 3)
                                                                              @ h_wa.conj() @ wd.conj() @
                                                                              torch.transpose(wd, 2, 3).conj(),axis=0)
-        elif self.config.Wa_G_Ones:
+        elif self.config.dWa_G_Ones:
             return torch.ones_like(wa)
         return torch.cat(((f2[None, :, :, :],) * self.config.B), 0)
 
