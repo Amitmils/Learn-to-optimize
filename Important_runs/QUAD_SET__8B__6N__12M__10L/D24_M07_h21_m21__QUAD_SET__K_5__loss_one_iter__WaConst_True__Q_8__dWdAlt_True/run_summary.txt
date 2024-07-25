@@ -22,9 +22,9 @@ full_grad_Wd_iter : [0, 4]
 alternate_dWd_bins : True
 use_cuda : True
 Wa_constrained : True
-Wa_G_I : False
-Wa_G_Ones : True
-Freq_bins_for_Wa_grad : 8
+dWa_G_I : False
+dWa_G_Ones : True
+Freq_bins_for_stoch_dWa : 8
 device : cuda
 
 Full Grad Iter Map:

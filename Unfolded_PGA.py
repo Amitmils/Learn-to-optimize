@@ -6,6 +6,8 @@ from PGA import PGA
 import torch.nn as nn
 from datetime import datetime
 import os
+import copy
+
 
 class Unfolded_PGA():
     def __init__(self,config) -> None:
@@ -16,8 +18,12 @@ class Unfolded_PGA():
         data_set_folder = f"{self.config.dataset_type}_SET__{self.config.B}B__{self.config.N}N__{self.config.M}M__{self.config.L}L"
         self.run_name = f"{today.strftime('D%d_M%m')}_{now.strftime('h%H_m%M')}__K_{config.num_of_iter_pga_unf}__loss_{config.loss}__WaConst_{self.config.Wa_constrained}__dWaOnes_{config.dWa_G_Ones}__Q_{config.Freq_bins_for_stoch_dWa if config.stoch_dWa else config.B}__dWdApprox_{'_'.join(map(str, config.iters_to_approx)) if config.approx_dWd else 'False'}"
         self.run_folder = os.path.join("runs",data_set_folder,self.run_name)
+
         os.makedirs(self.run_folder,exist_ok=True)
-        self.PGA = PGA(config,config.num_of_iter_pga_unf,pga_type='Unfolded')
+        if self.config.start_train_model is None:
+            self.PGA = PGA(config,config.num_of_iter_pga_unf,pga_type='Unfolded')
+        else:
+            self.PGA = torch.load(self.config.start_train_model,map_location=self.config.device)
         self.optimizer = torch.optim.Adam(self.PGA.parameters(), lr=self.config.lr)
         Timer.enabled = False
 
@@ -25,7 +31,6 @@ class Unfolded_PGA():
         self.PGA.train()
         train_losses, val_losses = list(),list()
         best_loss = torch.inf
-        best_mu = 0
         for i in range(self.config.epochs):
             self.PGA.train()
             H_shuffeld = torch.transpose(H_train, 0, 1)[np.random.permutation(len(H_train[1]))]
@@ -62,10 +67,10 @@ class Unfolded_PGA():
         return train_losses,val_losses
     
     def eval(self,H_test,plot=True):
-        if self.config.model is None or self.config.train == True:
+        if self.config.eval_model is None or self.config.train == True:
             model_path = os.path.join(self.run_folder,"PGA_model.pth")
         else:
-            model_path = self.config.model
+            model_path = self.config.eval_model
         print(f"Loading Model : {model_path}")
         self.PGA = torch.load(model_path,map_location=self.config.device)
         # #backward compatability
