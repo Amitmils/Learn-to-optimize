@@ -72,7 +72,7 @@ class PGA(nn.Module):
         if self.pga_type == 'Classic':
             return True
 
-        if self.config.alternate_dWd_bins and (iter + 1) % 2 == 0 and iter < self.config.num_of_iter_pga_unf - 1 and iter>0:#i >= iter_num * alt_bins and i < (iter_num + 1) * alt_bins  //  (i+iter_num) % 2 ==0
+        if self.config.approx_dWd and iter in self.config.iters_to_approx:
             return False
         return True
 
