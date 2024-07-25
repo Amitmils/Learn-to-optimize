@@ -63,7 +63,7 @@ if __name__ == "__main__":
             if config.train:
                 train_losses,valid_losses = unfolded_model.train(H_train,H_val)
             sum_rate_unfold = unfolded_model.eval(H_test, plot = False)
-            trial_summary = f"AVG Rate Per Iter : {sum(sum_rate_unfold)/sum_rate_unfold.shape[0]} STD Rate Per Iter : {torch.std(sum_rate_unfold,dim=0)} K = {unfolded_model.PGA.config.num_of_iter_pga_unf} Trial = {trial_num} Q = {unfolded_model.PGA.config.Freq_bins_for_Wa_grad} Loss = {unfolded_model.PGA.config.loss}"
+            trial_summary = f"AVG Rate Per Iter : {sum(sum_rate_unfold)/sum_rate_unfold.shape[0]} STD Rate Per Iter : {torch.std(sum_rate_unfold,dim=0)} {unfolded_model.run_name}"
             Total_Summary = Total_Summary + "\n" + trial_summary
             print(trial_summary)
             plt.figure()
