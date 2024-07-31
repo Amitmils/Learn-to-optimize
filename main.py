@@ -45,12 +45,15 @@ if __name__ == "__main__":
     #because i forgot to change config while changing datasets
     if config.B == 64:
         config.L = 12
+        print(f"IDIOT PROOF L ACTIVATED! L = {config.L}")
     if config.B == 64:
         config.L = 10
+        print(f"IDIOT PROOF L ACTIVATED! L = {config.L}")
+
     print(f"Train Set Size : {H_train.shape[1]}")
     print(f"Val Set Size : {H_val.shape[1]}")
     print(f"Test Set Size : {H_test.shape[1]}")
-    print(f"B = {config.B}, N = {config.N}, M = {config.M}\n\n")
+    print(f"B = {config.B}, N = {config.N}, M = {config.M} , L = {config.L}\n\n")
 
     # # ---- Classical PGA ----
     # classic_model = PGA(config,config.num_of_iter_pga,pga_type='Classic')
