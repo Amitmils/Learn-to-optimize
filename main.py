@@ -46,7 +46,7 @@ if __name__ == "__main__":
     if config.B == 64:
         config.L = 12
         print(f"IDIOT PROOF L ACTIVATED! L = {config.L}")
-    if config.B == 64:
+    if config.B == 8:
         config.L = 10
         print(f"IDIOT PROOF L ACTIVATED! L = {config.L}")
 
