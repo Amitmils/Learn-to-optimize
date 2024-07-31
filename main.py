@@ -41,17 +41,23 @@ if __name__ == "__main__":
     config.B = H_train.shape[0]
     config.N = H_train.shape[2]
     config.M = H_train.shape[3]
+
+    #because i forgot to change config while changing datasets
+    if config.B == 64:
+        config.L = 12
+    if config.B == 64:
+        config.L = 10
     print(f"Train Set Size : {H_train.shape[1]}")
     print(f"Val Set Size : {H_val.shape[1]}")
     print(f"Test Set Size : {H_test.shape[1]}")
     print(f"B = {config.B}, N = {config.N}, M = {config.M}\n\n")
 
-    # ---- Classical PGA ----
-    classic_model = PGA(config,config.num_of_iter_pga,pga_type='Classic')
-    Timer.enabled = True
-    sum_rate_class, wa, wd = classic_model.forward(H_test,plot=False)
-    sum_rate_class =sum_rate_class.detach().cpu()
-    Timer.save_time_telemetry(save_path="time_telemetry.csv")
+    # # ---- Classical PGA ----
+    # classic_model = PGA(config,config.num_of_iter_pga,pga_type='Classic')
+    # Timer.enabled = True
+    # sum_rate_class, wa, wd = classic_model.forward(H_test,plot=False)
+    # sum_rate_class =sum_rate_class.detach().cpu()
+    # Timer.save_time_telemetry(save_path="time_telemetry.csv")
 
     Timer.enabled = False    
     num_trials = 1
@@ -69,7 +75,7 @@ if __name__ == "__main__":
             plt.figure()
             plt.title(f"{config.dataset_type} Channel, W, Trial = {trial_num} \n Loss = {config.loss}")
             plt.plot(range(1,sum_rate_unfold.shape[1]+1),sum(sum_rate_unfold)/sum_rate_unfold.shape[0],marker='*',label=f'Unfolded ({(sum(sum_rate_unfold)/sum_rate_unfold.shape[0])[-1]:.2f},{torch.std(sum_rate_unfold,dim=0)[-1].item():.2f})')
-            plt.plot(range(1,sum_rate_class.shape[1]+1),[r for r in (sum(sum_rate_class)/sum_rate_class.shape[0])],marker='+',label=f'Classic ({(sum(sum_rate_class)/sum_rate_class.shape[0])[-1]:.2f},{torch.std(sum_rate_class,dim=0)[-1].item():.2f})')
+            # plt.plot(range(1,sum_rate_class.shape[1]+1),[r for r in (sum(sum_rate_class)/sum_rate_class.shape[0])],marker='+',label=f'Classic ({(sum(sum_rate_class)/sum_rate_class.shape[0])[-1]:.2f},{torch.std(sum_rate_class,dim=0)[-1].item():.2f})')
             plt.xlabel('Number of Iteration')
             plt.ylabel('Achievable Rate')
             plt.legend()
