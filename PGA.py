@@ -115,13 +115,13 @@ class PGA(nn.Module):
                                                                              torch.transpose(wd, 2, 3).conj() @
                                                                              torch.transpose(h_wa, 2, 3).conj()), 2, 3)
                                                                              @ h_wa.conj() @ wd.conj() @
-                                                                             torch.transpose(wd, 2, 3).conj(),axis=0)
+                                                                             torch.transpose(wd, 2, 3),axis=0)
         elif self.config.dWa_G_I:
             h_wa = h @ wa
             f2 = torch.mean(torch.transpose(h, 2, 3) @ torch.transpose(torch.eye(self.config.N).reshape((1, 1, self.config.N, self.config.N)
                                                                              ), 2, 3)
                                                                              @ h_wa.conj() @ wd.conj() @
-                                                                             torch.transpose(wd, 2, 3).conj(),axis=0)
+                                                                             torch.transpose(wd, 2, 3),axis=0)
         elif self.config.dWa_G_Ones:
             return torch.ones_like(wa)
         return torch.cat(((f2[None, :, :, :],) * self.config.B), 0)
