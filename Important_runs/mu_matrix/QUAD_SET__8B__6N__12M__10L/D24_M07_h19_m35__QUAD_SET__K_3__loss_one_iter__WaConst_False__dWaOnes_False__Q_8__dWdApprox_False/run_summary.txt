@@ -1,0 +1,38 @@
+B : 8
+N : 6
+M : 12
+L : 10
+dataset_type : QUAD
+Quad_data_path : /content/drive/MyDrive/Colab Notebooks/AmitM/Learn2Optimize/H_1200Channels_8B_12M_6N.mat
+Rayleigh_data_path : /content/drive/MyDrive/Colab Notebooks/AmitM/Learn2Optimize/Learn-to-optimize/Rayleigh_dataset.pt.pt
+create_IID_dataset : False
+train_size : 1000
+valid_size : 100
+test_size : 100
+num_of_iter_pga : 100
+num_of_iter_pga_unf : 3
+train : True
+mu_matrix : True
+lr : 0.01
+epochs : 5000
+batch_size : 100
+loss : one_iter
+model : None
+full_grad_Wd_iter : [0, 4]
+alternate_dWd_bins : False
+use_cuda : True
+Wa_constrained : False
+dWa_G_I : False
+dWa_G_Ones : False
+Freq_bins_for_stoch_dWa : 8
+device : cuda
+
+Full Grad Iter Map:
+Iter : 0 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+Iter : 1 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+Iter : 2 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+
+
+AVG Sum Rate Per Iter: tensor([10.7121, 12.9448, 13.8319])
+STD Sum Rate Per Iter: tensor([0.6499, 0.8244, 0.8220])
+Best Loss : -13.916674613952637 , Epoch : 4445

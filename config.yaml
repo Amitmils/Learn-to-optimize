@@ -1,29 +1,30 @@
 L : 10      # RF chains
 use_cuda : True
 dataset_type : "QUAD" # "Rayleigh"
-Quad_data_path : 'DataGen/MU_MIMO/MU_MIMO/H_1200Channels_8B_12M_6N.mat'
+Quad_data_path : 'H_2400Channels_64B_32M_12N.mat'
 Rayleigh_data_path : Rayleigh_dataset.pt.pt
-train_size : 1000 #For IID data creation and Quadrigo Datasplit
-valid_size : 100 #For IID data creation and Quadrigo Datasplit
-test_size : 100 #For IID data creation and Quadrigo Datasplit
+train_size : 2000 #For IID data creation and Quadrigo Datasplit
+valid_size : 200 #For IID data creation and Quadrigo Datasplit
+test_size : 200 #For IID data creation and Quadrigo Datasplit
 create_IID_dataset : False #only relevant if IID dataset chosen
 B : 8      # Num of frequency bands for data creation
 N : 6      # Num of users for data creation
 M : 12     # Tx antennas for data creation
 
 
-num_of_iter_pga : 200 # num classical pga iterations
+num_of_iter_pga : 10 # num classical pga iterations
 num_of_iter_pga_unf : 5 # num unfolded pga iterations
 
 # training parameters
-train : True
+train : False
 mu_matrix : True
 lr : 0.01
+save_model_interval: 2500
 epochs : 5000
 batch_size : 100  # batch size
 loss : "one_iter" # "all_iter" "some_iter"
 start_train_model : null
-eval_model : null #Only used when train == False
+eval_model : Important_runs/QUAD_SET__64B__12N__32M__12L/7500_epochs_D25_M07_h10_m12__K_5__loss_one_iter__WaConst_True__dWaOnes_False__Q_64__dWdApprox_False/PGA_model.pth #Only used when train == False
 
 #dWd options
 full_grad_Wd_iter : [0,4] #iterations on which to do full grad for dWd --- CURRENTLY HARD CODED TO BE OFF

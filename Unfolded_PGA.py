@@ -7,6 +7,7 @@ import torch.nn as nn
 from datetime import datetime
 import os
 import copy
+import shutil
 
 
 class Unfolded_PGA():
@@ -26,6 +27,7 @@ class Unfolded_PGA():
             self.PGA = torch.load(self.config.start_train_model,map_location=self.config.device)
         self.optimizer = torch.optim.Adam(self.PGA.parameters(), lr=self.config.lr)
         Timer.enabled = False
+        self.text_loss_summary = "" #for run summary
 
     def train(self,H_train,H_val):
         self.PGA.train()
@@ -58,6 +60,17 @@ class Unfolded_PGA():
                     best_loss_epoch = i
                     torch.save(self.PGA,os.path.join(self.run_folder,"PGA_model.pth"))
             
+            if i % self.config.save_model_interval ==0 and i > 0:
+                os.rename(os.path.join(self.run_folder,"PGA_model.pth"),os.path.join(self.run_folder,f"PGA_model_{i}epoch.pth"))
+                last_saved_file = os.path.join(self.run_folder,f"PGA_model_{i}epoch.pth")
+                self.text_loss_summary += f"Epoch <= {i} | Best Loss : {self.best_loss:.3f} , Epoch : {self.best_loss_epoch}\n" 
+
+            self.text_loss_summary += f"Full Run | Best Loss : {self.best_loss:.3f} , Epoch : {self.best_loss_epoch}"
+
+            if not(os.path.exists(os.path.join(self.run_folder,f"PGA_model.pth"))):
+                #full run model should be PGA_model.pth, if in the last save_model_interval there was no update, take the 
+                #the last updated version and change its name. 
+                os.rename(last_saved_file,os.path.join(self.run_folder,"PGA_model.pth"))
             print(f"{i} Loss Training : {train_losses[-1]:.2f} Loss Validation : {val_losses[-1]:.2f} ")
             print(f"Optimal MSE : {best_loss:.2f}  Epoch {best_loss_epoch}")
 
@@ -117,7 +130,7 @@ class Unfolded_PGA():
             file.write(f"AVG Sum Rate Per Iter: {sum(sum_rate)/sum_rate.shape[0]}\n")
             file.write(f"STD Sum Rate Per Iter: {torch.std(sum_rate,dim=0)}\n")
             if self.config.train:
-                file.write(f"Best Loss : {self.best_loss} , Epoch : {self.best_loss_epoch}" )
+                file.write(self.text_loss_summary)
             
     def calc_loss(self,sum_rate_per_iter,loss_iter = -1):
         if self.config.loss == 'one_iter':
