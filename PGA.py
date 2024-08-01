@@ -6,7 +6,7 @@ from utils import Timer
 import random
 
 class PGA(nn.Module):
-    def __init__(self,config,num_iter,pga_type='Classic'):
+    def __init__(self,config,num_iter,pga_type='Classic',lr = 50 * 1e-2):
         super().__init__()
         self.config = config
         self.num_iter = num_iter
@@ -17,7 +17,7 @@ class PGA(nn.Module):
 
         mu = torch.zeros(tensor_shape)
         if pga_type == 'Classic' or True:
-            mu +=50 * 1e-2
+            mu +=lr
             # nn.init.normal_(mu, mean=50 * 1e-2, std=0.01)
 
         # nn.init.xavier_uniform_(mu)#normal_(mu, mean=0.0, std=0.01) # uniform_ xavier_uniform_(mu)
@@ -55,14 +55,15 @@ class PGA(nn.Module):
     def init_variables(self,h):
         # svd for H_avg --> H = u*smat*vh
         _, _, vh = torch.linalg.svd(sum(h) / self.config.B, full_matrices=True)
-        # initializing Wa as vh
+        # initializing Wa as v
+        vh = torch.transpose(vh,1,2).conj()
         wa = vh[:, :, :self.config.L]
         wa = torch.cat(((wa[None, :, :, :],) * self.config.B), 0)
+
         # randomizing Wd,b
         wd = torch.randn(self.config.B, len(h[0]), self.config.L, self.config.N).to(wa.dtype) #makes it into complex128 if needed
         # projecting Wd,b onto the constraint
         wd = (torch.sqrt(self.config.N * self.config.B / (sum(torch.linalg.matrix_norm(wa @ wd, ord='fro')**2)))).reshape(len(h[0]), 1, 1) * wd
-
         self.prev_dWd = torch.zeros((self.config.B,h.shape[1],self.config.L,self.config.N),requires_grad=False,dtype=wa.dtype)
 
         return wa,wd
@@ -103,11 +104,17 @@ class PGA(nn.Module):
     @Timer.timeit
     def grad_wa(self, h, wa, wd):
         # calculates the gradient with respect to wa for a given channel (h) and precoders (wa, wd)
-        if self.pga_type != 'Classic' and self.config.stoch_dWa:
-            permutation = torch.randperm(self.config.B)[:self.config.Freq_bins_for_stoch_dWa]
-            h = h[permutation]
-            wa = wa[permutation]
-            wd = wd[permutation]
+        # if self.pga_type != 'Classic' and self.config.stoch_dWa:
+        #     permutation = torch.randperm(self.config.B)[:self.config.Freq_bins_for_stoch_dWa]
+        #     h = h[permutation]
+        #     wa = wa[permutation]
+        #     wd = wd[permutation]
+        if not(hasattr(self.config, 'dWa_G_I')):
+            self.config.dWa_G_I = self.config.Wa_G_I
+        if not(hasattr(self.config, 'dWa_G_Ones')):
+            self.config.dWa_G_Ones = self.config.Wa_G_Ones
+
+
         if self.pga_type == 'Classic' or (not(self.config.dWa_G_I) and not(self.config.dWa_G_Ones)):
             h_wa = h @ wa
             f2 = torch.mean(torch.transpose(h, 2, 3) @ torch.transpose(torch.linalg.inv(torch.eye(self.config.N).reshape((1, 1, self.config.N, self.config.N))

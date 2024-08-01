@@ -1,0 +1,40 @@
+B : 8
+N : 6
+M : 12
+L : 10
+dataset_type : QUAD
+Quad_data_path : DataGen/MU_MIMO/MU_MIMO/H_1200Channels_8B_12M_6N.mat
+Rayleigh_data_path : Rayleigh_dataset.pt.pt
+create_IID_dataset : False
+train_size : 1000
+valid_size : 100
+test_size : 100
+num_of_iter_pga : 100
+num_of_iter_pga_unf : 5
+train : True
+mu_matrix : True
+lr : 0.01
+epochs : 5000
+batch_size : 100
+loss : one_iter
+model : None
+full_grad_Wd_iter : [0, 4]
+alternate_dWd_bins : True
+use_cuda : True
+Wa_constrained : True
+dWa_G_I : False
+dWa_G_Ones : True
+Freq_bins_for_stoch_dWa : 8
+device : cuda
+
+Full Grad Iter Map:
+Iter : 0 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+Iter : 1 ||| Bin0 - False | Bin1 - False | Bin2 - False | Bin3 - False | Bin4 - False | Bin5 - False | Bin6 - False | Bin7 - False 
+Iter : 2 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+Iter : 3 ||| Bin0 - False | Bin1 - False | Bin2 - False | Bin3 - False | Bin4 - False | Bin5 - False | Bin6 - False | Bin7 - False 
+Iter : 4 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+
+
+AVG Sum Rate Per Iter: tensor([12.2184, 13.5278, 13.8183, 13.9173, 14.1183])
+STD Sum Rate Per Iter: tensor([0.6588, 0.6458, 0.7255, 0.7270, 0.7586])
+Best Loss : -14.114062309265137 , Epoch : 4962

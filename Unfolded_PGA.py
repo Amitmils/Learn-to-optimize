@@ -61,30 +61,32 @@ class Unfolded_PGA():
                     torch.save(self.PGA,os.path.join(self.run_folder,"PGA_model.pth"))
             
             if i % self.config.save_model_interval ==0 and i > 0:
-                os.rename(os.path.join(self.run_folder,"PGA_model.pth"),os.path.join(self.run_folder,f"PGA_model_{i}epoch.pth"))
-                last_saved_file = os.path.join(self.run_folder,f"PGA_model_{i}epoch.pth")
+                # os.rename(os.path.join(self.run_folder,"PGA_model.pth"),os.path.join(self.run_folder,f"PGA_model_{i}epoch.pth"))
+                # last_saved_file = os.path.join(self.run_folder,f"PGA_model_{i}epoch.pth")
                 self.text_loss_summary += f"Epoch <= {i} | Best Loss : {best_loss:.3f} , Epoch : {best_loss_epoch}\n" 
 
-            self.text_loss_summary += f"Full Run | Best Loss : {best_loss:.3f} , Epoch : {best_loss_epoch}"
 
-            if not(os.path.exists(os.path.join(self.run_folder,f"PGA_model.pth"))):
-                #full run model should be PGA_model.pth, if in the last save_model_interval there was no update, take the 
-                #the last updated version and change its name. 
-                os.rename(last_saved_file,os.path.join(self.run_folder,"PGA_model.pth"))
+            # if not(os.path.exists(os.path.join(self.run_folder,f"PGA_model.pth"))):
+            #     #full run model should be PGA_model.pth, if in the last save_model_interval there was no update, take the 
+            #     #the last updated version and change its name. 
+            #     os.rename(last_saved_file,os.path.join(self.run_folder,"PGA_model.pth"))
+
             print(f"{i} Loss Training : {train_losses[-1]:.2f} Loss Validation : {val_losses[-1]:.2f} ")
             print(f"Optimal MSE : {best_loss:.2f}  Epoch {best_loss_epoch}")
 
+        self.text_loss_summary += f"Full Run | Best Loss : {best_loss:.3f} , Epoch : {best_loss_epoch}\n"
         self.plot_learning_curve(train_losses,val_losses)
         self.best_loss = best_loss
         self.best_loss_epoch = best_loss_epoch
         return train_losses,val_losses
     
-    def eval(self,H_test,plot=True):
+    def eval(self,H_test,plot=True,verbose=True):
         if self.config.eval_model is None or self.config.train == True:
             model_path = os.path.join(self.run_folder,"PGA_model.pth")
         else:
             model_path = self.config.eval_model
-        print(f"Loading Model : {model_path}")
+        if verbose:
+            print(f"Loading Model : {model_path}")
         self.PGA = torch.load(model_path,map_location=self.config.device)
         # #backward compatability
         try:
