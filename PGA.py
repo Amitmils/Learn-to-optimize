@@ -22,7 +22,7 @@ class PGA(nn.Module):
 
         # nn.init.xavier_uniform_(mu)#normal_(mu, mean=0.0, std=0.01) # uniform_ xavier_uniform_(mu)
       
-        self.hyp = nn.Parameter(mu)  # parameters = (mu_a, mu_(d,1), ..., mu_(d,B))
+        self.hyp = nn.Parameter(mu,requires_grad=pga_type=='Unfolded')  # parameters = (mu_a, mu_(d,1), ..., mu_(d,B))
         self.pga_type = pga_type
 
     @Timer.timeit
@@ -176,7 +176,7 @@ class PGA(nn.Module):
     @Timer.timeit
     def calc_sum_rate(self, h, wa, wd):
         # calculates the rate for a given channel (h) and precoders (wa, wd)
-        return torch.mean(torch.log((torch.eye(self.config.N).reshape((1, 1, self.config.N, self.config.N)) +
+        return torch.mean(torch.log2((torch.eye(self.config.N).reshape((1, 1, self.config.N, self.config.N)) +
                        h @ wa @ wd @ torch.transpose(wd, 2, 3).conj() @
                        torch.transpose(wa, 2, 3).conj() @ torch.transpose(h, 2, 3).conj()).det()),axis=0)
     

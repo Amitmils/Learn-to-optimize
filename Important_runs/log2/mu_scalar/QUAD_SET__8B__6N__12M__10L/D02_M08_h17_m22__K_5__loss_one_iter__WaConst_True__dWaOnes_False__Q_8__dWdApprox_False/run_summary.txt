@@ -1,0 +1,43 @@
+L : 10
+use_cuda : True
+dataset_type : QUAD
+Quad_data_path : /content/drive/MyDrive/Colab Notebooks/AmitM/Learn2Optimize/H_1200Channels_8B_12M_6N.mat
+Rayleigh_data_path : Rayleigh_dataset.pt.pt
+train_size : 1000
+valid_size : 100
+test_size : 100
+create_IID_dataset : False
+B : 8
+N : 6
+M : 12
+num_of_iter_pga : 100
+num_of_iter_pga_unf : 5
+train : True
+mu_matrix : False
+lr : 0.01
+save_model_interval : 100000
+epochs : 5000
+batch_size : 100
+loss : one_iter
+start_train_model : None
+eval_model : runs/QUAD_SET__8B__6N__12M__10L/D01_M08_h08_m01__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_False/PGA_model.pth
+full_grad_Wd_iter : [0, 4]
+approx_dWd : False
+iters_to_approx : [1, 3]
+Wa_constrained : True
+dWa_G_I : False
+dWa_G_Ones : False
+stoch_dWa : False
+Freq_bins_for_stoch_dWa : 8
+device : cuda
+
+Full Grad Iter Map:
+Iter : 0 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+Iter : 1 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+Iter : 2 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+Iter : 3 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+Iter : 4 ||| Bin0 - True  | Bin1 - True  | Bin2 - True  | Bin3 - True  | Bin4 - True  | Bin5 - True  | Bin6 - True  | Bin7 - True  
+
+
+AVG Sum Rate Per Iter: tensor([12.3607, 17.6119, 14.2219, 18.1965, 18.6968])
+STD Sum Rate Per Iter: tensor([0.8603, 0.9557, 0.9295, 1.0256, 1.0736])
