@@ -3,10 +3,10 @@
     "enable_zoom": true,
     "start_snr": -5,
     "end_snr": 5,
-    "zoomed_in_start_snr": 1.65,
-    "zoomed_in_end_snr": 2.15,
-    "zoomed_in_min_rate": 5.5,
-    "zoomed_in_max_rate": 5.75,
+    "zoomed_in_start_snr": -2.4,
+    "zoomed_in_end_snr": -2.2,
+    "zoomed_in_min_rate": 3,
+    "zoomed_in_max_rate": 3.05,
     "snr": [
         -5,
         -4,
@@ -48,7 +48,7 @@
                 "4": 0.10025845964749654,
                 "5": 0.1014062762260437
             },
-            "label": "$dW_a$ Approx | $dW_{d.b}$ Approx | $\\mu$ Matrix (APGA)",
+            "label": "APGA",
             "marker": "x"
         },
         "$\\mu$ Scalar": {
@@ -78,8 +78,8 @@
                 "4": 0.10032997528711955,
                 "5": 0.09577183922131856
             },
-            "label": "$\\mu$ Scalar",
-            "marker": "o"
+            "label": "B1",
+            "marker": "D"
         },
         "Classic PGA": {
             "avg_sum_rate_per_snr": {
@@ -108,7 +108,7 @@
                 "4": 0.10041184226671855,
                 "5": 0.10131962100664775
             },
-            "label": "Classic PGA",
+            "label": "B2",
             "marker": "^",
             "iter_num_max_sum_rate": {
                 "-5": 82,

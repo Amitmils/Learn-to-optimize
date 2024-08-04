@@ -28,9 +28,9 @@ def create_plot_data(dataset_path):
         config.L = 12
         # Large Scale init Wa with V log2
         model_list = {
-            r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Matrix (APGA)" : {'marker':'x','label':r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Matrix (APGA)",'path': 'Important_runs/log2/mu_matrix/QUAD_SET__64B__12N__32M__12L/D01_M08_h14_m49__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_64__dWdApprox_1_3/PGA_model.pth'},
-            r"$\mu$ Scalar" : {'marker':'o','label':r"$\mu$ Scalar",'path': 'Important_runs/log2/mu_scalar/QUAD_SET__64B__12N__32M__12L/D01_M08_h15_m36__K_5__loss_one_iter__WaConst_True__dWaOnes_False__Q_64__dWdApprox_False/PGA_model.pth'},
-            r"Classic PGA" : {'marker':'^','label':r"Classic PGA",'path': '','num_iter':100},
+            r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Matrix (APGA)" : {'marker':'x','label':r"APGA",'path': 'Important_runs/log2/mu_matrix/QUAD_SET__64B__12N__32M__12L/D01_M08_h14_m49__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_64__dWdApprox_1_3/PGA_model.pth'},
+            r"$\mu$ Scalar" : {'marker':'D','label':r"B1",'path': 'Important_runs/log2/mu_scalar/QUAD_SET__64B__12N__32M__12L/D01_M08_h15_m36__K_5__loss_one_iter__WaConst_True__dWaOnes_False__Q_64__dWdApprox_False/PGA_model.pth'},
+            r"Classic PGA" : {'marker':'^','label':r"B2",'path': '','num_iter':100},
             "plot_data": {'saved_data_path': os.path.join('plots_data','large_scale_data_initWa_V_log2_train.json'),'enable_zoom' : True,
             'start_snr':-5,'end_snr':5,'zoomed_in_start_snr':2,'zoomed_in_end_snr':4,
             'zoomed_in_min_rate' : 4,'zoomed_in_max_rate' :5}
@@ -42,13 +42,13 @@ def create_plot_data(dataset_path):
 
         #Small Scale init Wa with V log2
         model_list = {
-            r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Matrix (APGA)" : {'marker':'x','label':r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Matrix (APGA)", 'path': 'Important_runs/log2/mu_matrix/QUAD_SET__8B__6N__12M__10L/D02_M08_h14_m32__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_1_3/PGA_model.pth'},
-            r"$dW_a$ Approx | $\mu$ Matrix" :{'marker':'*','label':r"$dW_a$ Approx | $\mu$ Matrix",'path': 'Important_runs/log2/mu_matrix/QUAD_SET__8B__6N__12M__10L/D02_M08_h18_m57__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_False/PGA_model.pth'},
-            r"$\mu$ Matrix":{'marker':'o','label': r"$\mu$ Matrix",'path': 'Important_runs/log2/mu_matrix/QUAD_SET__8B__6N__12M__10L/D02_M08_h15_m46__K_5__loss_one_iter__WaConst_True__dWaOnes_False__Q_8__dWdApprox_False/PGA_model.pth'},
-            r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Scalar":{'marker':',','label':r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Scalar",'path': 'Important_runs/log2/mu_scalar/QUAD_SET__8B__6N__12M__10L/D02_M08_h16_m47__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_1_3/PGA_model.pth'},
-            r"$dW_a$ Approx | $\mu$ Scalar" :{'marker':'+','label':r"$dW_a$ Approx | $\mu$ Scalar",'path': 'Important_runs/log2/mu_scalar/QUAD_SET__8B__6N__12M__10L/D02_M08_h19_m41__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_False/PGA_model.pth'},
-            r"$\mu$ Scalar": {'marker':'o','label':r"$\mu$ Scalar",'path': 'Important_runs/log2/mu_scalar/QUAD_SET__8B__6N__12M__10L/D02_M08_h17_m22__K_5__loss_one_iter__WaConst_True__dWaOnes_False__Q_8__dWdApprox_False/PGA_model.pth'},
-            r"Classic PGA" : {'marker':'^','label':r"Classic PGA",'path': '','num_iter':100},
+            r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Matrix (APGA)" : {'marker':'x','label':r"APGA", 'path': 'Important_runs/log2/mu_matrix/QUAD_SET__8B__6N__12M__10L/D02_M08_h14_m32__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_1_3/PGA_model.pth'},
+            r"$\mu$ Scalar": {'marker':'D','label':r"B1",'path': 'Important_runs/log2/mu_scalar/QUAD_SET__8B__6N__12M__10L/D02_M08_h17_m22__K_5__loss_one_iter__WaConst_True__dWaOnes_False__Q_8__dWdApprox_False/PGA_model.pth'},
+            r"Classic PGA" : {'marker':'^','label':r"B2",'path': '','num_iter':100},
+            r"$dW_a$ Approx | $\mu$ Matrix" :{'marker':'*','label':r"V1",'path': 'Important_runs/log2/mu_matrix/QUAD_SET__8B__6N__12M__10L/D02_M08_h18_m57__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_False/PGA_model.pth'},
+            r"$\mu$ Matrix":{'marker':'o','label': r"V2",'path': 'Important_runs/log2/mu_matrix/QUAD_SET__8B__6N__12M__10L/D02_M08_h15_m46__K_5__loss_one_iter__WaConst_True__dWaOnes_False__Q_8__dWdApprox_False/PGA_model.pth'},
+            r"$dW_a$ Approx | $dW_{d.b}$ Approx | $\mu$ Scalar":{'marker':'>','label':r"V3",'path': 'Important_runs/log2/mu_scalar/QUAD_SET__8B__6N__12M__10L/D02_M08_h16_m47__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_1_3/PGA_model.pth'},
+            r"$dW_a$ Approx | $\mu$ Scalar" :{'marker':'+','label':r"V4",'path': 'Important_runs/log2/mu_scalar/QUAD_SET__8B__6N__12M__10L/D02_M08_h19_m41__K_5__loss_one_iter__WaConst_True__dWaOnes_True__Q_8__dWdApprox_False/PGA_model.pth'},
             "plot_data": {'saved_data_path': os.path.join('plots_data','small_scale_data_initWa_V_log2_train.json'),'enable_zoom' : True,
                         'start_snr':-5,'end_snr':5,'zoomed_in_start_snr':2,'zoomed_in_end_snr':4,
                         'zoomed_in_min_rate' : 4,'zoomed_in_max_rate' :5}
@@ -115,10 +115,10 @@ if __name__ == '__main__':
     dataset_path = 'H_2400Channels_64B_32M_12N.mat' # H_2400Channels_64B_32M_12N H_1200Channels_8B_12M_6N
 
     plot_data = create_plot_data(dataset_path)
-    # plot_data['zoomed_in_start_snr'] = 1.65
-    # plot_data['zoomed_in_end_snr'] = 2.15
-    # plot_data['zoomed_in_min_rate'] = 5.5
-    # plot_data['zoomed_in_max_rate'] = 5.75
+    # plot_data['zoomed_in_start_snr'] = -2.4
+    # plot_data['zoomed_in_end_snr'] = -2.2
+    # plot_data['zoomed_in_min_rate'] = 3
+    # plot_data['zoomed_in_max_rate'] = 3.05
 
     fig, ax = plt.subplots()
     inset_ax = inset_axes(ax, width="20%", height="20%", loc='lower right',bbox_to_anchor=(0, 0.2, 1, 1), bbox_transform=ax.transAxes)
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         inset_ax.set_xlim(plot_data['zoomed_in_start_snr'],plot_data['zoomed_in_end_snr'])
         inset_ax.set_xticks([plot_data['zoomed_in_start_snr'],plot_data['zoomed_in_end_snr']])
         inset_ax.set_ylim(plot_data['zoomed_in_min_rate'], plot_data['zoomed_in_max_rate'])
-        mark_inset(ax, inset_ax, loc1=2, loc2=4, fc=(0.75, 0.5, 0.75, 0.5), ec="0.5")
+        mark_inset(ax, inset_ax, loc1=2, loc2=3, fc=(0.75, 0.5, 0.75, 0.5), ec="0.5")
         inset_ax.grid()
 
     # with open(plot_data['saved_data_path'], 'wb') as file:
