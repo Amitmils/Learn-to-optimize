@@ -102,7 +102,7 @@ class Unfolded_PGA():
         self.save_run_info(sum_rate_unf)
         avg_sum_rate_unf = torch.mean(sum_rate_unf,dim=0)
         std_sum_rate_unf = torch.std(sum_rate_unf,dim=0)
-        return avg_sum_rate_unf,std_sum_rate_unf
+        return sum_rate_unf
 
     def plot_learning_curve(self,train_losses,val_losses):
         y_t = [r.detach().cpu().numpy() for r in train_losses]
