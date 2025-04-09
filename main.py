@@ -16,7 +16,6 @@ if __name__ == "__main__":
     config = CONFIG('config.yaml')
     config.device = set_device(config.use_cuda and config.train) #if its not training, use CPU
 
-
     if config.dataset_type == "QUAD":
         H_all_channels = torch.tensor(io.loadmat(config.Quad_data_path)['H']).to(config.device).transpose(0,1).transpose(3,0).transpose(2,3).to(torch.complex128)
         H_train = H_all_channels[:,:config.train_size]
@@ -41,14 +40,6 @@ if __name__ == "__main__":
     config.B = H_train.shape[0]
     config.N = H_train.shape[2]
     config.M = H_train.shape[3]
-
-    #because i forgot to change config while changing datasets
-    if config.B == 64:
-        config.L = 12
-        print(f"IDIOT PROOF L ACTIVATED! L = {config.L}")
-    if config.B == 8:
-        config.L = 10
-        print(f"IDIOT PROOF L ACTIVATED! L = {config.L}")
 
     print(f"Train Set Size : {H_train.shape[1]}")
     print(f"Val Set Size : {H_val.shape[1]}")
